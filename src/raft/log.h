@@ -28,6 +28,21 @@ public:
         entries_.resize(index - 1);
     }
 
+    // Three cases: (1) index is the next free slot -> appended. (2) index
+    // already holds an entry with this term -> no-op, returns true (retried
+    // AppendEntries RPCs must be idempotent). (3) index already holds an
+    // entry with a different term, or skips ahead of the log -> rejected,
+    // returns false. On rejection the caller resolves the mismatch itself,
+    // typically via cut_off_from, then retries.
+    bool append_at(std::size_t index, LogEntry entry) {
+        if (index >= 1 && index <= entries_.size()) {
+            return entries_[index - 1].term == entry.term;
+        }
+        if (index != entries_.size() + 1) return false;
+        entries_.push_back(std::move(entry));
+        return true;
+    }
+
 private:
     std::vector<LogEntry> entries_;
 };
