@@ -10,7 +10,8 @@ find_package(Catch2 3 REQUIRED)
 
 enable_testing()
 
-add_executable(raftlog_tests tests/smoke_test.cpp)
+add_executable(raftlog_tests tests/smoke_test.cpp tests/log_test.cpp)
+target_include_directories(raftlog_tests PRIVATE src)
 target_link_libraries(raftlog_tests PRIVATE Catch2::Catch2WithMain)
 
 include(CTest)
